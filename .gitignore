@@ -1,0 +1,15 @@
+/.tools/
+/.preview/
+/design/
+__pycache__/
+
+# Keep original drafts and source videos local. Only optimized site assets
+# and the generated /docs directory belong in the public repository.
+/images/*
+!/images/1.png
+/assets/video/*
+!/assets/video/hero-idle-loop.mp4
+!/assets/video/hero-poster.webp
+
+# Local map credentials and coordinates must be configured separately.
+/map-config.js

@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#222719">
+  <meta name="description" content="Willowbrook 猫舍单页互动设计演示：跟随一只小猫，遇见一个温暖的家。">
+  <title>Willowbrook 猫舍 · 遇见温柔的小世界</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600&family=Noto+Serif+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="shared-scene-bg" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+  <header class="site-header" id="siteHeader">
+    <a class="brand" href="#home" aria-label="Willowbrook 猫舍，回到首页">
+      <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none"><path d="M12 38c-3-2-4-5-3-8m6 11c-3-4-2-10 1-14l2-7-1-9 6 4 6-5 3 9c6 5 8 12 6 19m-25 3h28M23 20l1 1m8-1 1 1M27 26l2 2 2-2M18 35c3 4 12 5 18 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      <span class="brand-word"><strong>Willowbrook</strong><small>C A T T E R Y</small></span>
+    </a>
+    <nav class="main-nav" aria-label="页面导航">
+      <a href="#home">首页</a><a href="#featured">明星片</a><a href="#diary">猫咪展览</a><a href="#visit">到访地图</a><a href="#shopMenu">菜单</a>
+    </nav>
+    <button class="pill pill-outline header-cta" type="button" data-open-booking>预约探访 <span aria-hidden="true">↗</span></button>
+    <button class="menu-toggle" id="menuToggle" type="button" aria-label="打开菜单" aria-expanded="false"><span></span><span></span></button>
+  </header>
+
+  <main>
+    <section class="film" id="home" aria-label="滚动影片：走进猫咪的小世界">
+      <div class="film-sticky">
+        <canvas class="film-frames" id="heroFrames" width="1600" height="900" role="img" aria-label="跟随滚动逐帧播放的小猫画面"></canvas>
+        <canvas class="film-handoff" id="heroHandoff" width="1600" height="900" aria-hidden="true"></canvas>
+        <video class="film-idle" id="heroIdle" src="assets/video/hero-idle-loop.mp4" preload="auto" autoplay loop muted playsinline poster="assets/video/hero-poster.webp" aria-label="小猫轻轻摇尾巴，壁炉里的火焰持续闪动"></video>
+        <div class="film-shade"></div>
+        <div class="film-grid" aria-hidden="true"><span>01 — 04</span><span>SCROLL FILM EXPERIENCE</span></div>
+        <div class="film-copy film-copy-first" id="filmFirst">
+          <span class="eyebrow light">A LITTLE JOURNEY BEGINS</span>
+          <h1>跟着它<br>走进一个<br><em>温暖</em>的小世界</h1>
+          <span class="fine-line"></span>
+          <p>从一道光、一团毛线，<br>到一个刚刚好的家。<br>我们的故事，由你的每一步慢慢展开。</p>
+          <a class="pill pill-solid" href="#featured">遇见我们的猫咪 <span aria-hidden="true">↗</span></a>
+        </div>
+        <div class="film-copy film-copy-second" id="filmSecond">
+          <span class="eyebrow light">THE WAY HOME</span>
+          <h2>当它回头<br>家，也正向你<br>慢慢打开</h2>
+          <span class="fine-line"></span>
+          <p>一个被信任填满的角落，<br>正等待下一场温柔相遇。</p>
+        </div>
+        <div class="film-script" id="filmScript" aria-hidden="true">一缕阳光<br>一团毛线<br>一次命中注定的相遇 <span>♡</span></div>
+        <div class="film-hanging-note" id="filmHangingNote" aria-hidden="true"><span class="hanging-thread"></span><span class="hanging-star">✧</span><span class="hanging-words">一束暖光<br>刚好照见你 <i>♡</i></span></div>
+        <div class="film-progress" aria-hidden="true"><span id="filmProgress"></span></div>
+        <div class="scroll-cue"><span class="mouse-icon"></span><small>SCROLL TO ENTER</small></div>
+        <div class="film-bottom" aria-hidden="true"><span>MORE THAN CATS</span><span>A KINDER, BRIGHTER WORLD</span></div>
+      </div>
+    </section>
+
+    <section class="featured" id="featured" aria-labelledby="featuredTitle">
+      <div class="featured-sticky">
+        <div class="featured-bg"></div><div class="featured-vignette"></div>
+        <div class="featured-intro" id="featuredIntro"><span class="eyebrow light">MEET OUR KITTENS · 02</span><h2 id="featuredTitle">遇见我们的猫咪</h2><p>每一只小生命，都被温柔以待。<br>轻轻拨开明信片，遇见让你心动的 TA。</p><small>猫咪照片与档案为视觉演示内容</small></div>
+        <div class="featured-note" id="featuredNote" aria-hidden="true">小小的相遇<br>能点亮更温暖的明天 <span>♡</span></div>
+        <div class="featured-ornament featured-ornament-tl" aria-hidden="true">✧ <span>little paws</span></div><div class="featured-ornament featured-ornament-tr" aria-hidden="true">✿</div><div class="featured-ornament featured-ornament-bl" aria-hidden="true">♡</div><div class="featured-ornament featured-ornament-br" aria-hidden="true">✧ <span>sweet hello</span></div>
+        <div class="postcard-stage" id="postcardStage" aria-label="猫咪明星片列表"></div>
+        <div class="featured-hint" id="featuredHint"><span>←</span> 点击或上滑明信片，认识它们 <span>→</span></div>
+        <div class="featured-bottom" aria-hidden="true"><span>PURE JOY, SOFT PAWS</span><span>WILLOWBROOK CATTERY</span></div>
+      </div>
+    </section>
+
+    <section class="story" id="story" aria-labelledby="storyTitle">
+      <div class="story-image"><img src="images/1.png" alt="阳光洒进温暖的猫舍，小猫在地板上玩毛线球" loading="lazy"><span class="image-caption">A HOME BEFORE A HOME.</span></div>
+      <div class="story-copy"><span class="eyebrow">OUR LITTLE PROMISE</span><h2 id="storyTitle">把每一个<br>小小的生命，<br><em>放在心上。</em></h2><p>我们相信，真正的陪伴从了解开始。愿每一次相遇，都有从容、信任与恰到好处的温柔。</p><p class="story-script">Little paws, big happiness ♡</p><a href="#diary" class="text-link">继续认识它们 <span aria-hidden="true">↗</span></a></div>
+    </section>
+
+    <section class="diary" id="diary" aria-labelledby="diaryTitle">
+      <div class="diary-sticky">
+        <div class="diary-visual" id="diaryVisual"><div class="diary-images" id="diaryImages"></div></div>
+        <div class="diary-top"><span class="eyebrow light">OUR KITTENS · 03</span><span>SCROLL TO MEET THEM</span></div>
+        <div class="diary-copy" id="diaryCopy"><span class="diary-count" id="diaryCount">01 / 06</span><h2 id="diaryTitle">小橘</h2><p id="diaryAge">2 个月</p><button class="pill pill-outline" id="diaryDetail" type="button">查看猫咪档案 <span aria-hidden="true">↗</span></button></div>
+        <div class="diary-track" id="diaryTrack" aria-hidden="true"></div><span class="diary-caption">每一次翻页，都是一次温柔的相遇 ♡</span>
+      </div>
+    </section>
+
+    <section class="visit" id="visit" aria-labelledby="visitTitle">
+      <div class="visit-sticky" id="visitScene">
+      <div class="visit-atmosphere" aria-hidden="true"></div>
+      <div class="map-grid-window" id="mapGridWindow" aria-hidden="true"><div class="map-grid" id="mapGrid"></div></div>
+      <div class="visit-container" id="visitArrival" inert>
+        <div class="visit-intro"><span class="eyebrow">VISIT OUR CATTERY · 04</span><h2 id="visitTitle">来猫舍见面吧</h2><p>地图展示北京朝阳区示意位置。正式地址确定后，会在这里更新门店坐标。</p></div>
+        <div class="visit-layout">
+          <div class="visit-card"><div class="visit-photo"><img src="assets/garden.webp" alt="猫舍庭院风格概念图" loading="lazy"><span>温柔的相遇<br>从这里开始 ♡</span></div>
+            <dl class="visit-facts"><div><dt>到访地址</dt><dd>正式地址待确认</dd></div><div><dt>开放时间</dt><dd>正式营业时间待确认</dd></div><div><dt>联系信息</dt><dd>正式联系方式待补充</dd></div><div><dt>到访提示</dt><dd>预约方式待正式公布</dd></div></dl>
+            <button class="pill pill-solid visit-book" type="button" data-open-booking>预约探访 <span aria-hidden="true">↗</span></button>
+          </div>
+          <div class="map-shell" id="mapShell"><iframe title="北京朝阳区示意地图，可拖动查看" src="https://www.openstreetmap.org/export/embed.html?bbox=116.40%2C39.89%2C116.49%2C39.96&amp;layer=mapnik&amp;marker=39.925%2C116.445" loading="eager" referrerpolicy="no-referrer-when-downgrade"></iframe><div class="map-fallback" id="mapFallback"><div class="map-roads" aria-hidden="true"></div><div class="map-pin">⌖</div><div class="map-label"><strong>北京 · 朝阳区</strong><span>示意位置，非真实门店地址</span></div></div><button class="map-interact" id="mapInteract" type="button" aria-pressed="false">点击操作地图</button><span class="map-credit">© OPENSTREETMAP CONTRIBUTORS · 示意位置</span></div>
+        </div>
+      </div>
+      </div>
+    </section>
+    <section class="shop-menu" id="shopMenu" aria-labelledby="shopMenuTitle">
+      <div class="shop-menu-inner">
+        <div class="shop-menu-heading"><span class="eyebrow">THE LITTLE SHOP · 05</span><h2 id="shopMenuTitle">猫舍里的<br><em>一份小菜单</em></h2><p>停下脚步，和小猫一起享受一段慢下来的时光。</p><small>以下品项与价格为页面设计示例，营业前请替换为正式菜单。</small></div>
+        <div class="menu-board"><div class="menu-board-top"><span>WILLOWBROOK · SAMPLE MENU</span><span>手写给每一场相遇 ♡</span></div><div class="menu-columns"><div><h3>饮品 <small>DRINKS</small></h3><div class="menu-item"><span><strong>花园拿铁</strong><small>Garden Latte</small></span><b>¥ 32</b></div><div class="menu-item"><span><strong>蜂蜜柚子茶</strong><small>Honey Citrus Tea</small></span><b>¥ 28</b></div><div class="menu-item"><span><strong>热可可</strong><small>Warm Cocoa</small></span><b>¥ 30</b></div></div><div><h3>甜点 <small>SWEETS</small></h3><div class="menu-item"><span><strong>猫爪曲奇</strong><small>Paw Cookies</small></span><b>¥ 22</b></div><div class="menu-item"><span><strong>莓果奶油蛋糕</strong><small>Berry Cream Cake</small></span><b>¥ 38</b></div><div class="menu-item"><span><strong>午后司康</strong><small>Afternoon Scone</small></span><b>¥ 26</b></div></div></div><div class="menu-board-bottom">菜单示例 · 具体品项、价格与过敏原信息待正式确认</div></div>
+      </div>
+    </section>
+    <section class="hours" id="hours" aria-labelledby="hoursTitle"><div class="hours-inner"><div class="hours-intro"><span class="eyebrow light">PLAN YOUR VISIT · 06</span><h2 id="hoursTitle">留一点时间，<br>给一场温柔相遇。</h2><p>到访前请先预约。正式营业时间、地址与联系渠道确定后，将在这里同步更新。</p><button class="pill pill-outline" type="button" data-open-booking>预约探访 <span aria-hidden="true">↗</span></button></div><div class="hours-card"><span class="hours-card-mark">✿</span><h3>到访信息</h3><dl><div><dt>营业时间</dt><dd>待正式确认</dd></div><div><dt>接待方式</dt><dd>预约制 · 演示信息</dd></div><div><dt>到访地址</dt><dd>待正式确认</dd></div><div><dt>联系渠道</dt><dd>待正式补充</dd></div></dl><p>健康与购买保障内容请以猫舍正式公示文件为准。</p></div></div></section>
+  </main>
+
+  <div class="portal-iris" id="portalIris" aria-hidden="true"></div>
+  <div class="portal-shutters" id="portalShutters" aria-hidden="true"><div class="portal-lid portal-lid-top"></div><div class="portal-lid portal-lid-bottom"></div></div>
+  <div class="wand-cursor" id="wandCursor" aria-hidden="true"><svg viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg"><path d="M15 81 61 26" fill="none" stroke="#f5e6bf" stroke-width="5" stroke-linecap="round"/><path d="M61 26Q74 18 77 30Q80 41 68 50" fill="none" stroke="#ead2aa" stroke-width="2"/><path d="M67 47Q55 38 49 50Q54 62 67 56Q82 64 86 49Q80 38 67 47Z" fill="#eab6a4" stroke="#fff2d5" stroke-width="2"/><path d="M65 49Q69 54 77 53" fill="none" stroke="#ac746d" stroke-width="1.5"/><circle cx="14" cy="82" r="4" fill="#ad7b55"/></svg></div>
+
+  <footer class="site-footer"><span>Willowbrook Cattery</span><span>A KINDER, BRIGHTER WORLD</span><span>© 2026 · 视觉概念演示</span></footer>
+
+  <div class="detail-backdrop" id="detailBackdrop" hidden></div>
+  <aside class="detail-panel" id="detailPanel" role="dialog" aria-modal="true" aria-labelledby="detailName" aria-hidden="true"><button class="icon-close" id="detailClose" type="button" aria-label="关闭猫咪详情">×</button><div class="detail-scroll" id="detailScroll"><div class="detail-hero"><img id="detailImage" alt=""><span class="detail-handwriting" id="detailHandwriting">Pure Joy ♡</span></div><div class="detail-paper"><span class="eyebrow">A LITTLE STORY ABOUT ME · 示例档案</span><div class="detail-name-row"><h2 id="detailName">露娜</h2><span id="detailGender">♀</span></div><p class="detail-trait" id="detailTrait"></p><div class="detail-grid"><div><h3>小档案</h3><dl id="detailFacts"></dl></div><div><h3>关于我 ♡</h3><p id="detailBio"></p></div></div><div class="detail-stamp"><span class="paw-symbol">🐾</span><span>Small Paws<br>Big Happiness</span></div><button class="pill pill-solid" type="button" data-open-booking>预约与 TA 见面 <span aria-hidden="true">↗</span></button></div></div></aside>
+
+  <div class="booking-backdrop" id="bookingBackdrop" hidden></div><section class="booking-modal" id="bookingModal" role="dialog" aria-modal="true" aria-labelledby="bookingTitle" aria-hidden="true"><button class="icon-close" id="bookingClose" type="button" aria-label="关闭预约窗口">×</button><span class="eyebrow">COME SAY HELLO</span><h2 id="bookingTitle">预约一场温柔的相遇</h2><p>这是设计演示页，预约表单尚未接入正式提交。填写内容仅在本页预览，不会发送。</p><form id="bookingForm"><label>你的称呼<input name="name" autocomplete="name" required placeholder="如何称呼你"></label><label>联系方式<input name="contact" required placeholder="手机号或微信"></label><label>想见的猫咪<select name="cat" id="bookingCat"></select></label><button class="pill pill-solid" type="submit">预览预约信息 <span aria-hidden="true">↗</span></button></form><p class="booking-confirmation" id="bookingConfirmation" role="status"></p></section>
+
+  <script src="assets/js/gsap.min.js" defer></script>
+  <script src="assets/js/ScrollTrigger.min.js" defer></script>
+  <script src="script.js" defer></script>
+</body>
+</html>
