@@ -12,8 +12,11 @@
 
 ```bash
 python scripts/build_pages.py
+python scripts/package_pages.py
 ```
 
-`docs/` 是 GitHub Pages 的发布目录。仓库 Pages 设置应选择 `Deploy from a branch`、`main` 和 `/docs`。原始视频及设计草稿留在本地，不随网站上传。
+`docs/` 是从源文件生成的静态站点，`site.zip` 是上传到 GitHub 的发布包。仓库使用 `.github/workflows/deploy.yml` 自动解包并部署到 GitHub Pages；更新 `site.zip` 后会自动重新发布。原始视频及设计草稿留在本地，不随网站上传。
+
+公开预览：[Willowbrook 猫舍](https://kaisong2014.github.io/willowbrook-cattery/)。
 
 地图中的北京朝阳区为示意位置，并非猫舍真实地址。正式对外使用前请更新门店资料。

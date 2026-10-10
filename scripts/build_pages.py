@@ -1,4 +1,4 @@
-"""Assemble the small static site published from GitHub Pages /docs."""
+"""Assemble the static site before packaging it for GitHub Pages."""
 
 from pathlib import Path
 import shutil
