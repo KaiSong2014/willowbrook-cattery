@@ -21,12 +21,18 @@ booking.setAttribute('data-lenis-prevent','');
 let activeCat=2, detailReturnFocus=null, bookingReturnFocus=null, detailCloseTimer=0, bookingCloseTimer=0, detailMode='closed';
 let heroProgress=0, galleryProgress=0, visitLead=0;
 let lastHeroProgress=-1, lastGalleryProgress=-1, lastDiaryProgress=-1, lastMapProgress=-1;
-const heroMedia=new HeroMedia({canvas:$('#heroFrames'),handoff:$('#heroHandoff'),video:$('#heroIdle'),endVideo:$('#heroEnd'),reduced});
 const finishOpening=()=>document.body.classList.remove('hero-intro');
+let openingTimer=0;
+const heroMedia=new HeroMedia({
+  canvas:$('#heroFrames'),handoff:$('#heroHandoff'),video:$('#heroIdle'),endVideo:$('#heroEnd'),reduced,
+  onIdleReady:()=>{
+    document.body.classList.add('hero-video-ready');
+    if(document.body.classList.contains('hero-intro'))openingTimer=setTimeout(finishOpening,1100);
+  }
+});
 if(!desktopMotion.matches||scrollY>8||(location.hash&&location.hash!=='#home'))finishOpening();
 else{
-  setTimeout(finishOpening,1100);
-  window.addEventListener('scroll',()=>{if(scrollY>8)finishOpening()},{passive:true});
+  window.addEventListener('scroll',()=>{if(scrollY>8){clearTimeout(openingTimer);finishOpening()}},{passive:true});
 }
 const heroLayers=$$('.film-frames,.film-handoff,.film-idle,.film-end');
 const heroScene=$('.film-sticky'), filmFirst=$('#filmFirst'), filmSecond=$('#filmSecond');
@@ -48,7 +54,7 @@ function renderHero(p){
   if(p===lastHeroProgress)return;lastHeroProgress=p;
   heroProgress=p;
   heroMedia.update(p);
-  filmProgress.style.transform=`scaleX(${Math.min(p/.72,1)})`;
+  filmProgress.style.transform=`scaleX(${Math.min(p/.80,1)})`;
   const a=1-smooth(.23,.43,p),b=smooth(.29,.46,p)*(1-smooth(.67,.81,p));
   filmFirst.style.opacity=a;filmFirst.style.transform=`translateY(${-38*smooth(.2,.44,p)}px)`;
   filmFirst.inert=a<.05;
