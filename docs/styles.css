@@ -1,5 +1,11 @@
 :root{--ink:#292c1e;--olive:#424b2f;--olive-deep:#242b1c;--cream:#f7f2e8;--paper:#fffaf0;--gold:#c8ab78;--line:#d9ceb9;--serif:"Noto Serif SC",serif;--display:"Playfair Display",Georgia,serif;--sans:"DM Sans",Arial,sans-serif}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--cream);color:var(--ink);font-family:var(--serif);overflow-x:hidden}button,input,select{font:inherit}button{cursor:pointer}a{color:inherit;text-decoration:none}img,video{display:block;max-width:100%}::selection{background:#bdb590;color:#222}
+*{box-sizing:border-box}html{scroll-behavior:auto}body{margin:0;background:var(--cream);color:var(--ink);font-family:var(--serif);overflow-x:hidden}button,input,select{font:inherit}button{cursor:pointer}a{color:inherit;text-decoration:none}img,video{display:block;max-width:100%}::selection{background:#bdb590;color:#222}
+/* Lenis owns desktop wheel smoothing; panels retain their native nested scrolling. */
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto!important}
+.lenis.lenis-smooth [data-lenis-prevent]{overscroll-behavior:contain}
+.lenis.lenis-stopped{overflow:visible}
+#filmProgress{width:100%;transform:scaleX(0);transform-origin:left center}
 .grain{position:fixed;inset:0;pointer-events:none;z-index:1000;opacity:.16;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.66' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.2'/%3E%3C/svg%3E")}
 .site-header{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;gap:3vw;padding:24px clamp(22px,5.4vw,96px);color:#fff;transition:background .45s,color .45s,padding .35s,box-shadow .35s}.site-header.scrolled{background:rgba(250,246,236,.94);color:var(--ink);padding-top:14px;padding-bottom:14px;backdrop-filter:blur(16px);box-shadow:0 5px 30px #342e2114}.brand{display:flex;align-items:center;gap:10px;min-width:280px}.brand-mark{font-size:37px;font-family:serif;line-height:1;font-weight:400;transform:rotate(-14deg);display:inline-block}.brand-word{display:flex;flex-direction:column}.brand strong{font-family:var(--display);font-size:27px;font-weight:500;line-height:1}.brand small{font:9px var(--sans);letter-spacing:.47em;padding-left:3px;margin-top:5px}.main-nav{display:flex;align-items:center;justify-content:center;gap:clamp(16px,2.5vw,48px);margin-left:auto}.main-nav a{font-size:14px;white-space:nowrap;position:relative;transition:opacity .25s}.main-nav a:hover{opacity:.65}.main-nav a::after{content:"";position:absolute;left:0;right:100%;bottom:-8px;height:1px;background:currentColor;transition:right .3s}.main-nav a:hover::after{right:0}.pill{border-radius:999px;border:1px solid transparent;padding:14px 28px;display:inline-flex;justify-content:center;align-items:center;gap:20px;min-height:48px;white-space:nowrap;font-size:14px;letter-spacing:.1em;transition:transform .3s,box-shadow .3s,background .3s,color .3s}.pill:hover{transform:translateY(-3px);box-shadow:0 10px 24px #10140830}.pill:active{transform:translateY(0)}.pill span{font-family:var(--sans);font-size:18px;line-height:1}.pill-outline{border-color:#ffffffb8;background:#344127b8;color:#fff}.scrolled .pill-outline{border-color:var(--olive);background:var(--olive)}.pill-solid{background:var(--olive);border-color:#a6a17a;color:#fff}.menu-toggle{display:none;background:none;border:0;padding:6px}.menu-toggle span{display:block;width:24px;height:1px;background:currentColor;margin:6px 0}
 .eyebrow{display:block;font:600 11px var(--sans);letter-spacing:.4em;color:var(--olive);text-transform:uppercase}.eyebrow.light{color:#f7f1e6}.fine-line{display:block;width:43px;height:1px;background:#fff;margin:28px 0 21px}.film{height:360vh;background:#030504}.film-sticky{position:sticky;top:0;height:100vh;overflow:hidden;background:#040604;color:#fff}.film-video{position:absolute;width:100%;height:100%;inset:0;object-fit:cover;filter:saturate(.9) contrast(1.04)}.film-shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(5,9,5,.5),rgba(5,9,5,.1) 42%,rgba(5,9,5,.05) 65%),linear-gradient(0deg,rgba(0,0,0,.3),transparent 30%)}.film-grid{position:absolute;left:5.4vw;right:5.4vw;top:50%;display:flex;justify-content:space-between;opacity:.45;font:10px var(--sans);letter-spacing:.3em;transform:translateY(-50%) rotate(-90deg);pointer-events:none;display:none}.film-copy{position:absolute;z-index:2;left:7.2vw;top:20%;max-width:600px;text-shadow:0 2px 18px #0005}.film-copy h1,.film-copy h2{font:500 clamp(47px,5.5vw,94px)/1.18 var(--serif);letter-spacing:-.05em;margin:22px 0 0}.film-copy h1 em,.story-copy h2 em{font-style:normal;color:#e5d1a8}.film-copy h2{font-size:clamp(45px,5.2vw,86px)}.film-copy p{font-size:16px;line-height:1.9;letter-spacing:.1em;margin:0 0 25px}.film-copy-second{opacity:0;transform:translateY(55px)}.film-script{position:absolute;z-index:2;right:24%;top:49%;font-family:cursive;font-size:clamp(18px,2vw,28px);font-style:italic;line-height:1.75;letter-spacing:.16em;transform:rotate(-10deg);text-shadow:0 3px 15px #0009;opacity:.9}.film-script span{display:block;font-size:34px;text-align:center}.film-progress{position:absolute;z-index:3;bottom:0;left:0;right:0;height:3px;background:#fff4}.film-progress span{display:block;width:0;height:100%;background:#f8ead5}.scroll-cue{position:absolute;left:50%;bottom:49px;z-index:3;display:flex;align-items:center;flex-direction:column;gap:10px;transform:translateX(-50%);font:9px var(--sans);letter-spacing:.3em}.mouse-icon{width:24px;height:37px;border:1px solid #fff;border-radius:20px;position:relative}.mouse-icon:after{content:"";position:absolute;top:8px;left:11px;width:2px;height:8px;border-radius:2px;background:#fff;animation:mouse 1.6s infinite}@keyframes mouse{to{transform:translateY(9px);opacity:0}}.film-bottom{position:absolute;z-index:2;bottom:24px;left:5.4vw;right:5.4vw;display:flex;justify-content:space-between;font:9px var(--sans);letter-spacing:.36em}.iris{position:absolute;z-index:5;width:10vw;height:10vw;left:72%;top:54%;border-radius:50%;background:#020302;transform:translate(-50%,-50%) scale(0);pointer-events:none;will-change:transform}
@@ -83,7 +89,7 @@ main{position:relative;z-index:1}
 
 /* A captured video frame covers the decoder handoff until the requested image is ready. */
 .film-handoff{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:2;opacity:0;pointer-events:none;transform-origin:44% 49%;will-change:opacity,transform}
-.film-handoff.is-fading{opacity:0!important;transition:opacity .42s ease-out}
+.film-end{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;opacity:0;pointer-events:none;transform-origin:44% 49%;will-change:opacity,transform}
 .film-shade{z-index:3}.film-copy,.film-script,.film-hanging-note,.scroll-cue,.film-bottom,.film-progress{z-index:4}
 .film-frames{z-index:0}.film-idle{z-index:1}
 @media(max-width:760px){.film-handoff{transform-origin:58% 54%}}
@@ -196,11 +202,22 @@ main{position:relative;z-index:1}
   .visit-book{min-height:32px;padding:6px 10px;font-size:10px}
 }
 
-/* Fine pointers get a teaser wand; touch scrolling keeps all scene transitions. */
-@media(pointer:fine) and (prefers-reduced-motion:no-preference){.has-wand body,.has-wand body a,.has-wand body button{cursor:none}.wand-cursor{position:fixed;left:-9px;top:-51px;width:64px;height:64px;z-index:1001;pointer-events:none;opacity:0;will-change:transform;filter:drop-shadow(0 2px 5px #0007)}.wand-cursor.visible{opacity:1}.wand-cursor svg{width:100%;height:100%}}
-@media(pointer:coarse){.wand-cursor{display:none}}
+/* Desktop scenes share scroll space without adding a second pin or transform scrub. */
+@media(min-width:761px) and (prefers-reduced-motion:no-preference){
+  .film{height:460vh}
+  .featured{height:300vh}
+  .film-sticky{opacity:var(--hero-scene-opacity,1)}
+  .featured-sticky{background-color:var(--cats-scene-color,transparent)}
+  .film-frames,.film-idle,.film-handoff,.film-end{object-position:44% 49%;transform-origin:44% 49%}
+  .postcard,.postcard.is-selected{transition:box-shadow .35s,filter .35s}
+  .story-copy>*,.story-image img{transition:none}
+  .story:before,.story:after{content:"";position:absolute;left:0;right:0;height:clamp(36px,7vh,80px);z-index:1;pointer-events:none}
+  .story:before{top:0;background:linear-gradient(180deg,#1018121a,transparent)}
+  .story:after{bottom:0;background:linear-gradient(0deg,#1018121a,transparent)}
+  .visit-sticky{transform-origin:50% 50%;will-change:transform,opacity}
+}
 @media(prefers-reduced-motion:reduce){
-  .wand-cursor{display:none}.story-copy>*{opacity:1;transform:none}
+  .film-end{display:none!important}.story-copy>*{opacity:1;transform:none}
   .diary{height:auto}.diary-sticky{position:relative;height:auto;padding:95px 6vw 35px}
   .diary-visual,.diary-images{position:relative;inset:auto;width:100%;height:auto;transform:none!important;opacity:1!important;border-radius:0!important}
   .diary-slide{position:relative;inset:auto;height:auto;padding:20px 0;opacity:1!important;transform:none!important}
@@ -214,3 +231,43 @@ main{position:relative;z-index:1}
   .visit-container{position:relative;inset:auto;margin:0;padding:80px 5vw 60px;transform:none!important;opacity:1!important;filter:none!important}
   .visit-layout{flex:auto;min-height:600px}
 }
+
+/* First second: room, cat, then the invitation. The veil does not delay media loading. */
+.film-opening{display:none;position:absolute;inset:0;z-index:3;pointer-events:none}
+@media(min-width:761px) and (prefers-reduced-motion:no-preference){
+  .film-sticky{background:#040604 url('assets/video/hero-poster.webp') 44% 49%/cover no-repeat}
+  .hero-intro .film-opening{display:block}
+  .hero-intro .film-opening:before,.hero-intro .film-opening:after{content:"";position:absolute;inset:0;pointer-events:none}
+  .hero-intro .film-opening:before{background:#040604;animation:openingRoom .52s both}
+  .hero-intro .film-opening:after{background:radial-gradient(ellipse 31% 46% at 46% 48%,#040604 18%,#040604ed 62%,transparent 100%);animation:openingCat .76s both}
+  .hero-intro #filmFirst>*{animation:openingLine .30s both}
+  .hero-intro #filmFirst>:nth-child(1){animation-delay:.46s}
+  .hero-intro #filmFirst>:nth-child(2){animation-delay:.50s}
+  .hero-intro #filmFirst>:nth-child(3){animation-delay:.57s}
+  .hero-intro #filmFirst>:nth-child(4){animation-delay:.63s}
+  .hero-intro #filmFirst>:nth-child(5){animation-delay:.69s}
+  .hero-intro .film-script,.hero-intro .film-bottom{animation:openingFade .32s .70s both}
+  .hero-intro .film-hanging-note{animation:openingFade .32s .70s both,hangingSway 5s ease-in-out infinite alternate}
+  .hero-intro .scroll-cue{animation:openingCue .30s .72s both}
+  .hero-intro .site-header{animation:openingHeader .36s .61s both}
+  .scroll-cue:before{content:"";position:absolute;top:-18px;left:50%;width:76px;height:76px;margin-left:-38px;border-radius:50%;background:radial-gradient(circle,#f4da9c46 0%,#f4da9c1a 38%,transparent 72%);pointer-events:none;animation:cueGlow 3s ease-in-out infinite}
+  .scroll-cue:after{content:"";position:absolute;top:calc(100% + 7px);left:50%;width:1px;height:23px;background:linear-gradient(#f5e8c9,transparent);pointer-events:none;animation:cueLine 2.8s ease-in-out infinite}
+  .scroll-cue .mouse-icon{animation:cueFloat 2.8s ease-in-out infinite}
+  .scroll-cue small{animation:cueWords 2.8s ease-in-out infinite}
+}
+@keyframes openingRoom{0%,12%{opacity:1}100%{opacity:0}}
+@keyframes openingCat{0%,32%{opacity:1}100%{opacity:0}}
+@keyframes openingLine{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes openingFade{from{opacity:0}to{opacity:1}}
+@keyframes openingCue{from{opacity:0;transform:translate(-50%,9px)}to{opacity:1;transform:translate(-50%,0)}}
+@keyframes openingHeader{from{opacity:0;transform:translateY(-9px)}to{opacity:1;transform:translateY(0)}}
+@keyframes cueGlow{0%,100%{opacity:.35;transform:scale(.82)}50%{opacity:.8;transform:scale(1.08)}}
+@keyframes cueFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(4px)}}
+@keyframes cueLine{0%,100%{opacity:.25;transform:scaleY(.65)}50%{opacity:.8;transform:scaleY(1)}}
+@keyframes cueWords{0%,100%{opacity:.65}50%{opacity:1}}
+
+/* A quiet scrim keeps the garden and the unopened postcards in view. */
+@media(min-width:761px){
+  .detail-backdrop{background:#07120840;backdrop-filter:none}
+}
+@media(min-width:1051px){.detail-panel{width:min(540px,38vw)}}

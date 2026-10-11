@@ -9,6 +9,7 @@ __pycache__/
 !/images/1.png
 /assets/video/*
 !/assets/video/hero-idle-loop.mp4
+!/assets/video/hero-end-loop.mp4
 !/assets/video/hero-poster.webp
 
 # Local map credentials and coordinates must be configured separately.

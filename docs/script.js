@@ -11,104 +11,95 @@ const $$ = (s,root=document)=>[...root.querySelectorAll(s)];
 const clamp=(n,min=0,max=1)=>Math.max(min,Math.min(max,n));
 const smooth=(a,b,t)=>{const x=clamp((t-a)/(b-a));return x*x*(3-2*x)};
 const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-const hero=$('#home'), gallery=$('#featured'), story=$('#story'), diary=$('#diary'), visit=$('#visit'), idleVideo=$('#heroIdle'), frameCanvas=$('#heroFrames'), handoffCanvas=$('#heroHandoff');
+const desktopMotion=window.matchMedia('(min-width: 761px) and (prefers-reduced-motion: no-preference)');
+const hero=$('#home'), gallery=$('#featured'), story=$('#story'), diary=$('#diary'), visit=$('#visit');
 const postcards=$('#postcardStage');
 const detail=$('#detailPanel'), detailBackdrop=$('#detailBackdrop');
 const booking=$('#bookingModal'), bookingBackdrop=$('#bookingBackdrop');
-let activeCat=2, lastFocus=null, detailCloseTimer=0, detailMode='closed';
-const frameCount=180, firstScrollFrame=19, frameCache=new Map(), frameLoading=new Set(), frameContext=frameCanvas.getContext('2d',{alpha:false});
-let frameTarget=0, frameShown=-1, frameQueue=[], heroProgress=0, handoffCaptured=false, handoffReady=false, introFrame=firstScrollFrame, lastHeroProgress=-1, lastDiaryProgress=-1, lastMapProgress=-1;
-const handoffContext=handoffCanvas.getContext('2d',{alpha:false});
-const framePath=i=>`assets/frames/frame_${String(i+1).padStart(4,'0')}.webp`;
-function drawFrame(i){const image=frameCache.get(i);if(!image||i===frameShown)return;frameContext.drawImage(image,0,0,frameCanvas.width,frameCanvas.height);frameShown=i;frameCache.delete(i);frameCache.set(i,image);updateHeroHandoff()}
-function pumpFrames(){
-  while(frameLoading.size<(handoffCaptured?4:2)){
-    const i=frameQueue.find(n=>!frameCache.has(n)&&!frameLoading.has(n));
-    if(i===undefined)break;
-    frameLoading.add(i);
-    const image=new Image();image.decoding='async';image.src=framePath(i);
-    image.decode().then(()=>{
-      frameCache.set(i,image);
-      while(frameCache.size>28){const oldest=frameCache.keys().next().value;if(oldest===frameShown||oldest===frameTarget){const keep=frameCache.get(oldest);frameCache.delete(oldest);frameCache.set(oldest,keep)}else frameCache.delete(oldest)}
-      if(i===frameTarget||frameShown<0||Math.abs(i-frameTarget)<Math.abs(frameShown-frameTarget))drawFrame(i);
-    }).catch(()=>{if(i===firstScrollFrame&&frameShown<0)frameCanvas.style.background="url('assets/video/hero-poster.webp') center/cover"}).finally(()=>{frameLoading.delete(i);pumpFrames()});
-  }
+$('#detailScroll').setAttribute('data-lenis-prevent','');
+booking.setAttribute('data-lenis-prevent','');
+let activeCat=2, detailReturnFocus=null, bookingReturnFocus=null, detailCloseTimer=0, bookingCloseTimer=0, detailMode='closed';
+let heroProgress=0, galleryProgress=0, visitLead=0;
+let lastHeroProgress=-1, lastGalleryProgress=-1, lastDiaryProgress=-1, lastMapProgress=-1;
+const heroMedia=new HeroMedia({canvas:$('#heroFrames'),handoff:$('#heroHandoff'),video:$('#heroIdle'),endVideo:$('#heroEnd'),reduced});
+const finishOpening=()=>document.body.classList.remove('hero-intro');
+if(!desktopMotion.matches||scrollY>8||(location.hash&&location.hash!=='#home'))finishOpening();
+else{
+  setTimeout(finishOpening,1100);
+  window.addEventListener('scroll',()=>{if(scrollY>8)finishOpening()},{passive:true});
 }
-function requestFrame(i){
-  frameTarget=clamp(Math.round(i),0,frameCount-1);
-  const old=frameShown;
-  const direction=old<0||frameTarget>=old?1:-1;
-  frameQueue=[frameTarget];
-  for(let step=1;step<=7;step++){const ahead=frameTarget+direction*step,behind=frameTarget-direction*step;if(ahead>=0&&ahead<frameCount)frameQueue.push(ahead);if(behind>=0&&behind<frameCount)frameQueue.push(behind)}
-  if(!handoffCaptured)for(let i=0;i<=firstScrollFrame;i++)frameQueue.push(i);
-  if(frameCache.has(frameTarget))drawFrame(frameTarget);
-  pumpFrames();
-}
-const poster=new Image();poster.src='assets/video/hero-poster.webp';poster.decode().then(()=>{if(frameShown<0)frameContext.drawImage(poster,0,0,frameCanvas.width,frameCanvas.height)}).catch(()=>{});
-requestFrame(firstScrollFrame);
-function updateHeroHandoff(){if(!handoffCaptured)return;if(!handoffReady&&frameShown>=0&&Math.abs(frameShown-frameTarget)<=2){handoffReady=true;frameCanvas.style.opacity='1';handoffCanvas.classList.add('is-fading')}}
-function captureIntro(){if(handoffCaptured||reduced)return;handoffCaptured=true;const t=idleVideo.currentTime||0;introFrame=clamp(Math.round(Math.min(t,Math.max(0,3.125-t))*12),0,firstScrollFrame);try{if(idleVideo.readyState>=2)handoffContext.drawImage(idleVideo,0,0,handoffCanvas.width,handoffCanvas.height);else if(poster.complete)handoffContext.drawImage(poster,0,0,handoffCanvas.width,handoffCanvas.height)}catch(_){if(poster.complete)handoffContext.drawImage(poster,0,0,handoffCanvas.width,handoffCanvas.height)}handoffCanvas.style.opacity='1';idleVideo.style.opacity='0';idleVideo.pause();requestFrame(introFrame);updateHeroHandoff()}
-if(reduced){idleVideo.pause();idleVideo.removeAttribute('autoplay')}
-else idleVideo.play().catch(()=>{});
-idleVideo.addEventListener('error',()=>{idleVideo.style.display='none';frameCanvas.style.opacity='1'});
+const heroLayers=$$('.film-frames,.film-handoff,.film-idle,.film-end');
+const heroScene=$('.film-sticky'), filmFirst=$('#filmFirst'), filmSecond=$('#filmSecond');
+const filmScript=$('#filmScript'), filmCue=$('.scroll-cue'), filmShade=$('.film-shade');
+const filmNote=$('#filmHangingNote'), filmBottom=$('.film-bottom'), filmProgress=$('#filmProgress');
+const portalIris=$('#portalIris'), portalShutters=$('#portalShutters');
+const portalTop=$('.portal-lid-top'), portalBottom=$('.portal-lid-bottom');
+const galleryScene=$('.featured-sticky'), galleryBg=$('.featured-bg'), galleryVignette=$('.featured-vignette');
+const galleryIntro=$('#featuredIntro'), galleryNote=$('#featuredNote'), galleryHint=$('#featuredHint');
 postcards.innerHTML=cats.map((cat,i)=>`<button class="postcard" type="button" data-cat="${i}" aria-label="查看${cat.name}的资料" style="--rise:110vh"><img class="postcard-photo" src="${cat.image}" alt="${cat.name}的肖像"><span class="postcard-name">${cat.english}</span><span class="postcard-heart" aria-hidden="true">♡</span></button>`).join('');
 $('#diaryImages').innerHTML=cats.map((cat,i)=>`<figure class="diary-slide"><img class="diary-backdrop" src="${cat.image}" alt="" aria-hidden="true" loading="lazy"><img class="diary-image" src="${cat.image}" alt="${cat.name}的完整照片" loading="${i<2?'eager':'lazy'}"><figcaption class="diary-static-caption">${cat.name} · ${cat.age}</figcaption></figure>`).join('');
 $('#diaryTrack').innerHTML=cats.map(()=>'<span></span>').join('');
 $('#mapGrid').innerHTML=Array.from({length:12},(_,i)=>`<div class="map-tile" style="--tile:${i};--col:${i%4};--row:${Math.floor(i/4)}"><img src="${cats[(i*5+Math.floor(i/4))%cats.length].image}" alt=""></div>`).join('');
 const diarySlides=$$('.diary-slide'), diaryMarkers=$$('#diaryTrack span'), mapTiles=$$('.map-tile');
 const diaryVisual=$('#diaryVisual'), diaryCopy=$('#diaryCopy'), visitScene=$('#visitScene'), visitArrival=$('#visitArrival'), gridWindow=$('#mapGridWindow');
+const postcardCards=$$('.postcard'), diaryFurniture=$$('.diary-top,.diary-track,.diary-caption');
+const visitAtmosphere=$('.visit-atmosphere'), mapShell=$('#mapShell');
 function renderHero(p){
-  if(Math.abs(p-lastHeroProgress)<.0005)return;lastHeroProgress=p;
+  if(p===lastHeroProgress)return;lastHeroProgress=p;
   heroProgress=p;
-  $('#filmProgress').style.width=`${Math.min(p/.84,1)*100}%`;
-  const filmProgress=smooth(0,.82,p);
-  if(p>.002)captureIntro();
-  requestFrame(introFrame+filmProgress*(frameCount-1-introFrame));
+  heroMedia.update(p);
+  filmProgress.style.transform=`scaleX(${Math.min(p/.72,1)})`;
   const a=1-smooth(.23,.43,p),b=smooth(.29,.46,p)*(1-smooth(.67,.81,p));
-  $('#filmFirst').style.opacity=a;$('#filmFirst').style.transform=`translateY(${-38*smooth(.2,.44,p)}px)`;
-  $('#filmSecond').style.opacity=b;$('#filmSecond').style.transform=`translateY(${55*(1-smooth(.3,.46,p))-30*smooth(.67,.81,p)}px)`;
-  $('#filmScript').style.opacity=1-smooth(.25,.4,p);
-  $('.scroll-cue').style.opacity=1-smooth(.08,.2,p);
-  const zoom=smooth(.79,.97,p),bridge=smooth(.91,1,p);
-  if(p<=.002){handoffCaptured=false;handoffReady=false;introFrame=firstScrollFrame;handoffCanvas.classList.remove('is-fading');handoffCanvas.style.opacity='0';frameCanvas.style.opacity=idleVideo.style.display==='none'?'1':'0';idleVideo.style.opacity='1';if(idleVideo.paused&&!document.hidden&&!reduced&&idleVideo.style.display!=='none')idleVideo.play().catch(()=>{})}
-  else if(handoffReady)frameCanvas.style.opacity=String(1-bridge);
-  handoffCanvas.style.visibility=bridge>.98?'hidden':'visible';
-  frameCanvas.style.transform=`scale(${1+5.4*zoom})`;
-  handoffCanvas.style.transform=frameCanvas.style.transform;
-  $('.film-shade').style.opacity=1-bridge;
-  $('#filmHangingNote').style.opacity=(1-smooth(.18,.36,p))*(1-bridge);
-  $('.film-bottom').style.opacity=1-smooth(.75,.95,p);
-  $('.film-progress').style.opacity=1-smooth(.8,.98,p);
-  renderPortal(p,sectionProgress(gallery));
+  filmFirst.style.opacity=a;filmFirst.style.transform=`translateY(${-38*smooth(.2,.44,p)}px)`;
+  filmFirst.inert=a<.05;
+  filmSecond.style.opacity=b;filmSecond.style.transform=`translateY(${55*(1-smooth(.3,.46,p))-30*smooth(.67,.81,p)}px)`;
+  filmScript.style.opacity=1-smooth(.25,.4,p);
+  filmCue.style.opacity=1-smooth(.08,.2,p);
+  const zoom=smooth(.84,1,p),bridge=smooth(.9,1,p);
+  for(const layer of heroLayers)layer.style.transform=`scale(${1+5.4*zoom})`;
+  heroScene.style.setProperty('--hero-scene-opacity',1-bridge);
+  filmShade.style.opacity=1-bridge;
+  filmNote.style.opacity=(1-smooth(.18,.36,p))*(1-bridge);
+  filmBottom.style.opacity=1-smooth(.75,.95,p);
+  filmProgress.parentElement.style.opacity=1-smooth(.8,.98,p);
+  renderPortal();
 }
-function renderPortal(heroProgress,galleryProgress){
-  const galleryEntered=window.scrollY>=gallery.offsetTop;
-  const iris=smooth(.77,.985,heroProgress);
-  $('#portalIris').style.opacity=galleryEntered||heroProgress<.76?'0':'1';
-  $('#portalIris').style.setProperty('--hole',`${Math.max(0,140*(1-iris))}vmax`);
-  const coverage=galleryEntered?1-smooth(0,.13,galleryProgress):smooth(.88,.995,heroProgress);
-  $('#portalShutters').style.visibility=coverage<=.001?'hidden':'visible';
-  $('.portal-lid-top').style.transform=`translateY(${-100*(1-coverage)}%)`;
-  $('.portal-lid-bottom').style.transform=`translateY(${100*(1-coverage)}%)`;
+function renderPortal(){
+  // The same garden is visible through both scenes; the aperture shades the edges only.
+  const entrance=smooth(.84,1,heroProgress),exit=1-smooth(0,.16,galleryProgress);
+  const shade=entrance*exit;
+  portalIris.style.opacity=String(shade*.16);
+  portalIris.style.setProperty('--hole',`${140-105*entrance}vmax`);
+  portalShutters.style.visibility=shade<.001?'hidden':'visible';
+  portalShutters.style.opacity=String(shade*.14);
+  const coverage=.18*shade;
+  portalTop.style.transform=`translateY(${-100*(1-coverage)}%)`;
+  portalBottom.style.transform=`translateY(${100*(1-coverage)}%)`;
 }
 function renderGallery(p){
-  const bg=smooth(.19,.48,p);$('.featured-bg').style.opacity=bg*.76;$('.featured-bg').style.transform=`scale(${1.08-.08*bg})`;$('.featured-vignette').style.opacity=bg*.58;
-  const intro=smooth(.32,.47,p);$('#featuredIntro').style.opacity=intro;$('#featuredIntro').style.transform=`translateY(${25*(1-intro)}px)`;
-  $('#featuredNote').style.opacity=smooth(.47,.59,p);$('#featuredHint').style.opacity=smooth(.36,.5,p);
-  $$('.postcard').forEach((card,i)=>{
-    const offset=i*.034, peek=smooth(.025+offset,.12+offset,p), settle=smooth(.11+offset,.22+offset,p);
+  if(p===lastGalleryProgress)return;lastGalleryProgress=p;galleryProgress=p;
+  galleryScene.style.opacity=String(smooth(0,.10,p));
+  const bg=smooth(.02,.5,p);
+  galleryBg.style.opacity=bg*.76;galleryBg.style.transform=`scale(${1.08-.08*bg-.018*smooth(.5,1,p)})`;
+  galleryVignette.style.opacity=bg*.58;
+  const intro=smooth(.05,.24,p);galleryIntro.style.opacity=intro;galleryIntro.style.transform=`translateY(${25*(1-intro)}px)`;
+  galleryNote.style.opacity=smooth(.43,.64,p);galleryHint.style.opacity=smooth(.36,.55,p);
+  galleryScene.style.setProperty('--cats-scene-color',`rgba(16,24,18,${.16*smooth(.72,1,p)})`);
+  postcardCards.forEach((card,i)=>{
+    const offset=i*.043, peek=smooth(.025+offset,.18+offset,p), settle=smooth(.13+offset,.4+offset,p);
     const rise=(1-peek)*75+peek*(1-settle)*18;
     card.style.setProperty('--rise',`${rise}vh`);
-    card.style.opacity=smooth(.035+offset,.115+offset,p);
+    const opacity=smooth(.035+offset,.16+offset,p);
+    card.style.opacity=opacity;card.inert=opacity<.9;
   });
-  renderPortal(sectionProgress(hero),p);
+  renderPortal();
 }
 function renderDiary(p){
-  if(Math.abs(p-lastDiaryProgress)<.0005)return;
+  if(p===lastDiaryProgress)return;
   lastDiaryProgress=p;
   const time=clamp((p-.08)/.76)*cats.length;
   const index=Math.min(cats.length-1,Math.floor(time)), phase=time-index;
-  const blend=index<cats.length-1?smooth(.7,1,phase):0;
+  const blend=index<cats.length-1?smooth(.6,1,phase):0;
   diarySlides.forEach((slide,i)=>{
     slide.style.opacity=i===index?'1':i===index+1?String(blend):'0';
     slide.style.zIndex=i===index+1?'2':'1';
@@ -128,23 +119,28 @@ function renderDiary(p){
     $('#diaryDetail').dataset.cat=labelIndex;
   }
   diaryMarkers.forEach((dot,i)=>dot.classList.toggle('active',i===labelIndex));
-  // The whole composition retreats into the same centered aperture used by the next scene.
-  diaryVisual.style.transform=`scale(${(.08+.92*opening)*(1-.965*closing)})`;
-  diaryVisual.style.borderRadius=`${32*(1-opening+closing)}px`;
-  diaryVisual.style.opacity=String(1-smooth(.982,1,p));
-  for(const el of $$('.diary-top,.diary-track,.diary-caption'))el.style.opacity=String(1-smooth(.86,.94,p));
+  // A small camera retreat carries the portrait into the incoming photo grid.
+  diaryVisual.style.transform=`scale(${(.94+.06*opening)*(1-.12*closing)})`;
+  diaryVisual.style.borderRadius=`${18*closing}px`;
+  diaryVisual.style.opacity='1';
+  for(const el of diaryFurniture)el.style.opacity=String(1-smooth(.86,.96,p));
+}
+function renderVisitLead(lead){
+  visitLead=lead;
+  const active=lead>0||lastMapProgress>0;
+  visitScene.classList.toggle('is-entered',active);
+  // Cancel only the incoming box's normal-flow offset, never transform its sticky ancestor.
+  visitScene.style.transform=`translate3d(0,${-.72*innerHeight*(1-lead)}px,0)`;
+  visitScene.style.opacity=String(smooth(.08,1,lead));
 }
 function renderMapGrid(p){
-  // The incoming sticky scene stays invisible while its normal-flow box crosses the viewport.
-  // It takes over exactly where the outgoing diary has finished shrinking, including in reverse.
-  visitScene.classList.toggle('is-entered',window.scrollY>=visit.offsetTop-.5);
-  if(Math.abs(p-lastMapProgress)<.0005)return;
+  if(p===lastMapProgress)return;
   lastMapProgress=p;
-  const opening=smooth(0,.14,p),scatter=smooth(.17,.56,p),fade=smooth(.39,.62,p),arrival=smooth(.32,.76,p);
-  $('.visit-atmosphere').style.opacity=String(smooth(0,.18,p));
-  gridWindow.style.transform=`scale(${.035+.965*opening})`;
-  gridWindow.style.borderRadius=`${32*(1-opening)}px`;
-  gridWindow.style.opacity=String(smooth(0,.018,p));
+  const opening=smooth(0,.14,p),scatter=smooth(.17,.63,p),fade=smooth(.43,.69,p),arrival=smooth(.36,.84,p);
+  visitAtmosphere.style.opacity=String(smooth(0,.22,p));
+  gridWindow.style.transform=`scale(${.88+.12*opening})`;
+  gridWindow.style.borderRadius=`${18*(1-opening)}px`;
+  gridWindow.style.opacity=String(1-smooth(.69,.74,p));
   const columns=innerWidth<=760?3:4,rows=12/columns;
   mapTiles.forEach((tile,i)=>{
     const col=i%columns,row=Math.floor(i/columns);
@@ -154,62 +150,151 @@ function renderMapGrid(p){
   });
   // No vertical entrance: perspective and scale bring the centered map towards the viewer.
   visitArrival.style.transform=`translateZ(${-2400*(1-arrival)}px) scale(${.36+.64*arrival})`;
-  visitArrival.style.opacity=String(smooth(.32,.46,p));
-  visitArrival.style.filter=`blur(${8*(1-arrival)}px)`;
+  visitArrival.style.opacity=String(smooth(.36,.55,p));
+  visitArrival.style.filter=`blur(${5*(1-arrival)}px)`;
   visitArrival.inert=arrival<.995;
   visitScene.classList.toggle('is-map-ready',arrival>=.995);
-  if(arrival<.995&&$('#mapShell').classList.contains('is-interactive'))setMapInteraction(false);
+  if(arrival<.995&&mapShell.classList.contains('is-interactive'))setMapInteraction(false);
 }
-function sectionProgress(el){const travel=el.offsetHeight-window.innerHeight;return travel<=0?0:clamp((window.scrollY-el.offsetTop)/travel)}
-function updateScroll(){if(!reduced){renderHero(sectionProgress(hero));renderGallery(sectionProgress(gallery));renderDiary(sectionProgress(diary));renderMapGrid(sectionProgress(visit))}else{visitArrival.inert=false;visitScene.classList.add('is-entered','is-map-ready')}$('#siteHeader').classList.toggle('scrolled',window.scrollY>story.offsetTop-80)}
-let scrollPending=false;function scheduleScroll(){if(scrollPending)return;scrollPending=true;requestAnimationFrame(()=>{scrollPending=false;updateScroll()})}
-window.addEventListener('scroll',scheduleScroll,{passive:true});window.addEventListener('resize',()=>{lastDiaryProgress=-1;lastMapProgress=-1;scheduleScroll()});window.addEventListener('load',updateScroll);updateScroll();
-const storyObserver=new IntersectionObserver(entries=>{if(entries.some(entry=>entry.isIntersecting)){story.classList.add('is-visible');storyObserver.disconnect()}},{threshold:.16});storyObserver.observe(story);
-function setMapInteraction(enabled){$('#mapShell').classList.toggle('is-interactive',enabled);$('#mapInteract').setAttribute('aria-pressed',String(enabled));$('#mapInteract').textContent=enabled?'退出地图操作':'点击操作地图'}
+const sceneBounds=new Map(),header=$('#siteHeader');
+let lenis=null,scrollPending=false;
+const hasScrollTrigger=!!(window.gsap&&window.ScrollTrigger&&!reduced);
+function measureScenes(){
+  for(const section of [hero,gallery,story,diary,visit]){
+    sceneBounds.set(section,{top:section.offsetTop,travel:Math.max(1,section.offsetHeight-innerHeight)});
+  }
+  lastHeroProgress=lastGalleryProgress=lastDiaryProgress=lastMapProgress=-1;
+}
+function sectionProgress(el){const bounds=sceneBounds.get(el);return clamp((scrollY-bounds.top)/bounds.travel)}
+function updateHeader(){header.classList.toggle('scrolled',scrollY>sceneBounds.get(story).top-80)}
+function updateScroll(){
+  if(!reduced){
+    renderHero(sectionProgress(hero));renderGallery(sectionProgress(gallery));
+    renderDiary(sectionProgress(diary));renderMapGrid(sectionProgress(visit));
+    renderVisitLead(clamp((scrollY-sceneBounds.get(visit).top+innerHeight*.72)/(innerHeight*.72)));
+  }else{
+    visitArrival.inert=false;visitScene.classList.add('is-entered','is-map-ready');
+  }
+  updateHeader();
+}
+function scheduleScroll(){if(scrollPending)return;scrollPending=true;requestAnimationFrame(()=>{scrollPending=false;updateScroll()})}
+measureScenes();
+if(hasScrollTrigger){
+  gsap.registerPlugin(ScrollTrigger);
+  ScrollTrigger.addEventListener('refreshInit',measureScenes);
+  // CSS sticky owns the pin. A second GSAP pin would add spacers and break the overlaps.
+  // scrub:true is intentional: Lenis supplies damping once; scenes have no catch-up tween.
+  for(const [section,render] of [[hero,renderHero],[gallery,renderGallery],[diary,renderDiary],[visit,renderMapGrid]]){
+    const playhead={progress:0};
+    gsap.to(playhead,{progress:1,ease:'none',onUpdate:()=>render(playhead.progress),scrollTrigger:{
+      id:`scene-${section.id}`,trigger:section,start:'top top',
+      end:()=>`+=${Math.max(1,section.offsetHeight-innerHeight)}`,
+      pin:false,scrub:true,invalidateOnRefresh:true,
+      onRefresh:self=>render(self.progress)
+    }});
+  }
+  const arrival={progress:0};
+  gsap.to(arrival,{progress:1,ease:'none',onUpdate:()=>renderVisitLead(arrival.progress),scrollTrigger:{
+    id:'diary-visit-bridge',trigger:visit,start:'top 72%',end:'top top',scrub:true,
+    invalidateOnRefresh:true,onRefresh:self=>renderVisitLead(self.progress)
+  }});
+  ScrollTrigger.create({id:'header-tone',start:0,end:'max',onUpdate:updateHeader,onRefresh:updateHeader});
+  if(desktopMotion.matches){
+    story.classList.add('is-visible');
+    gsap.fromTo('.story-copy > *',{opacity:0,y:26},{opacity:1,y:0,stagger:.08,ease:'none',scrollTrigger:{
+      id:'story-reveal',trigger:story,start:'top 85%',end:'top 20%',scrub:true
+    }});
+    gsap.fromTo('.story-image img',{scale:1.055},{scale:1,ease:'none',scrollTrigger:{
+      id:'story-camera',trigger:story,start:'top bottom',end:'bottom top',scrub:true
+    }});
+  }
+}else{
+  // The native renderer is a fallback, never a second writer alongside ScrollTrigger.
+  window.addEventListener('scroll',scheduleScroll,{passive:true});
+  window.addEventListener('resize',()=>{measureScenes();scheduleScroll()});
+  updateScroll();
+}
+function syncSmoothScroll(){
+  if(lenis){lenis.destroy();lenis=null}
+  if(!desktopMotion.matches||!window.Lenis)return;
+  lenis=new Lenis({
+    autoRaf:false,smoothWheel:true,syncTouch:false,lerp:.18,wheelMultiplier:1,
+    prevent:node=>node instanceof Element&&!!node.closest('[data-lenis-prevent]'),
+    // Keep horizontal trackpad gestures native; vertical wheel travel is not scaled or capped.
+    virtualScroll:({event,deltaX,deltaY})=>!event.ctrlKey&&!event.shiftKey&&Math.abs(deltaY)>=Math.abs(deltaX)
+  });
+  lenis.on('scroll',()=>{if(hasScrollTrigger)ScrollTrigger.update();else scheduleScroll()});
+  if(detail.classList.contains('active')||booking.classList.contains('active'))lenis.stop();
+}
+syncSmoothScroll();
+desktopMotion.addEventListener('change',syncSmoothScroll);
+if(window.gsap){gsap.ticker.lagSmoothing(0);gsap.ticker.add(time=>lenis?.raf(time*1000))}
+else{const tick=time=>{lenis?.raf(time);requestAnimationFrame(tick)};requestAnimationFrame(tick)}
+function refreshScroll(){measureScenes();lenis?.resize();if(hasScrollTrigger)ScrollTrigger.refresh();else updateScroll()}
+window.addEventListener('load',refreshScroll,{once:true});
+document.fonts?.ready.then(refreshScroll);
+if(hasScrollTrigger)ScrollTrigger.refresh();
+if(!desktopMotion.matches||!hasScrollTrigger){
+  const storyObserver=new IntersectionObserver(entries=>{if(entries.some(entry=>entry.isIntersecting)){story.classList.add('is-visible');storyObserver.disconnect()}},{threshold:.16});storyObserver.observe(story);
+}
+function setMapInteraction(enabled){mapShell.classList.toggle('is-interactive',enabled);mapShell.toggleAttribute('data-lenis-prevent',enabled);$('#mapInteract').setAttribute('aria-pressed',String(enabled));$('#mapInteract').textContent=enabled?'退出地图操作':'点击操作地图'}
 $('#mapInteract').addEventListener('click',()=>setMapInteraction(!$('#mapShell').classList.contains('is-interactive')));
 document.addEventListener('keydown',e=>{if(e.key==='Escape')setMapInteraction(false)});
-// ScrollTrigger manages scroll progress and reverse motion when available; native scroll is the offline fallback.
-if(window.gsap&&window.ScrollTrigger&&!reduced){gsap.registerPlugin(ScrollTrigger);ScrollTrigger.create({trigger:hero,start:'top top',end:'bottom bottom',onUpdate:self=>renderHero(self.progress)});ScrollTrigger.create({trigger:gallery,start:'top top',end:'bottom bottom',onUpdate:self=>renderGallery(self.progress)});ScrollTrigger.create({trigger:diary,start:'top top',end:'bottom bottom',onUpdate:self=>renderDiary(self.progress)});ScrollTrigger.create({trigger:visit,start:'top top',end:'bottom bottom',onUpdate:self=>renderMapGrid(self.progress)})}
-document.addEventListener('visibilitychange',()=>{if(document.hidden)idleVideo.pause();else if(sectionProgress(hero)<.03)idleVideo.play().catch(()=>{})});
 function renderDetail(cat){$('#detailImage').src=cat.image;$('#detailImage').alt=`${cat.name}的肖像`;$('#detailName').textContent=cat.name;$('#detailGender').textContent=cat.gender;$('#detailTrait').textContent=cat.tag;$('#detailHandwriting').textContent=cat.hand;$('#detailBio').textContent=cat.bio;$('#detailFacts').innerHTML=`<div><dt>年龄</dt><dd>${cat.age}</dd></div><div><dt>品种</dt><dd>${cat.breed}</dd></div><div><dt>健康</dt><dd>${cat.health}</dd></div><div><dt>医疗</dt><dd>${cat.medical}</dd></div><div><dt>性格</dt><dd>${cat.personality}</dd></div>`;$('#detailScroll').scrollTop=0}
+function lockPageScroll(){lenis?.stop()}
+function unlockPageScroll(){if(!detail.classList.contains('active')&&!booking.classList.contains('active'))lenis?.start()}
+document.addEventListener('wheel',event=>{
+  if((detail.classList.contains('active')||booking.classList.contains('active'))
+    &&!event.target.closest('#detailScroll,#bookingModal'))event.preventDefault();
+},{passive:false,capture:true});
+document.addEventListener('keydown',event=>{
+  const panel=booking.classList.contains('active')?booking:detail.classList.contains('active')?$('#detailScroll'):null;
+  if(!panel||event.altKey||event.ctrlKey||event.metaKey||event.target.closest('input,textarea,select,[contenteditable]'))return;
+  if(event.code==='Space'&&event.target.closest('button,a'))return;
+  const amount=event.code==='PageDown'||event.code==='Space'?panel.clientHeight*.8:
+    event.code==='PageUp'?-panel.clientHeight*.8:event.code==='ArrowDown'?48:event.code==='ArrowUp'?-48:null;
+  if(amount!==null){event.preventDefault();panel.scrollBy({top:event.shiftKey&&event.code==='Space'?-amount:amount,behavior:'instant'})}
+  else if(event.code==='Home'||event.code==='End'){event.preventDefault();panel.scrollTop=event.code==='Home'?0:panel.scrollHeight}
+},{capture:true});
 function openDetail(index,opener){
   clearTimeout(detailCloseTimer);
   detailMode='manual';
-  activeCat=index;lastFocus=document.activeElement;renderDetail(cats[index]);
+  activeCat=index;detailReturnFocus=document.activeElement;renderDetail(cats[index]);
   $$('.postcard').forEach((card,i)=>card.classList.toggle('is-selected',i===index));
   const card=opener?.classList.contains('postcard')?opener:$$('.postcard')[index];
   const bounds=card.getBoundingClientRect();
   detail.dataset.side=bounds.left+bounds.width/2<innerWidth/2?'right':'left';
   detailBackdrop.hidden=false;
   requestAnimationFrame(()=>{detailBackdrop.classList.add('active');detail.classList.add('active')});
-  detail.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';
-  setTimeout(()=>$('#detailClose').focus(),180);
+  detail.setAttribute('aria-hidden','false');lockPageScroll();
+  setTimeout(()=>$('#detailClose').focus({preventScroll:true}),180);
 }
 function closeDetail(){
   if(detailMode!=='manual'||!detail.classList.contains('active'))return;
   detailMode='closed';
   detail.classList.remove('active');detailBackdrop.classList.remove('active');detail.setAttribute('aria-hidden','true');
-  $$('.postcard').forEach(card=>card.classList.remove('is-selected'));
-  detailCloseTimer=setTimeout(()=>{detailBackdrop.hidden=true;if(!booking.classList.contains('active'))document.body.style.overflow=''},420);
-  lastFocus?.focus?.();
+  $$('.postcard').forEach(card=>{card.classList.remove('is-selected');card.style.setProperty('--wobble','0deg');card.style.setProperty('--card-scale','1')});
+  detailCloseTimer=setTimeout(()=>{detailBackdrop.hidden=true;unlockPageScroll()},420);
+  detailReturnFocus?.focus?.({preventScroll:true});
 }
-const wand=$('#wandCursor');if(!reduced&&matchMedia('(pointer:fine)').matches){document.documentElement.classList.add('has-wand');let targetX=-100,targetY=-100,currentX=-100,currentY=-100;document.addEventListener('pointermove',e=>{targetX=e.clientX;targetY=e.clientY;wand.classList.add('visible')},{passive:true});document.addEventListener('pointerleave',()=>wand.classList.remove('visible'));const moveWand=()=>{currentX+=(targetX-currentX)*.28;currentY+=(targetY-currentY)*.28;wand.style.transform=`translate3d(${currentX}px,${currentY}px,0) rotate(${Math.sin(performance.now()/450)*5}deg)`;requestAnimationFrame(moveWand)};moveWand()}
 document.addEventListener('click',e=>{const opener=e.target.closest('[data-cat]');if(opener)openDetail(Number(opener.dataset.cat),opener)});
 $('#detailClose').addEventListener('click',closeDetail);
 detailBackdrop.addEventListener('click',closeDetail);
 document.addEventListener('pointerdown',e=>{if(detail.classList.contains('active')&&!detail.contains(e.target)&&!booking.classList.contains('active'))closeDetail()});
 $$('.postcard').forEach(card=>{let start=null;card.addEventListener('pointerdown',e=>{start={x:e.clientX,y:e.clientY}});card.addEventListener('pointerup',e=>{if(!start)return;const dy=start.y-e.clientY;if(dy>42&&Math.abs(e.clientX-start.x)<90)openDetail(Number(card.dataset.cat),card);start=null});card.addEventListener('pointermove',e=>{if(e.pointerType==='touch')return;const r=card.getBoundingClientRect();const dx=(e.clientX-r.left)/r.width-.5;card.style.setProperty('--wobble',`${dx*7}deg`);card.style.setProperty('--card-scale','1.055')});card.addEventListener('pointerleave',()=>{card.style.setProperty('--wobble','0deg');card.style.setProperty('--card-scale','1')})});
-$$('a[href="#featured"]').forEach(link=>link.addEventListener('click',e=>{e.preventDefault();const distance=gallery.offsetHeight-innerHeight;window.scrollTo({top:gallery.offsetTop+distance*.52,behavior:reduced?'instant':'smooth'});history.replaceState(null,'','#featured')}));
-for(const [section,progress] of [[diary,.12],[visit,.82]]){
-  $$(`a[href="#${section.id}"]`).forEach(link=>link.addEventListener('click',e=>{
-    e.preventDefault();
-    window.scrollTo({top:section.offsetTop+(reduced?0:(section.offsetHeight-innerHeight)*progress),behavior:reduced?'instant':'smooth'});
-    history.replaceState(null,'',`#${section.id}`);
-  }));
-}
+const anchorProgress=new Map([[hero,0],[gallery,.66],[diary,.12],[visit,.88]]);
+$$('a[href^="#"]').forEach(link=>link.addEventListener('click',event=>{
+  const section=document.getElementById(link.hash.slice(1));if(!section)return;
+  event.preventDefault();
+  const progress=reduced?0:(anchorProgress.get(section)||0);
+  const top=section.offsetTop+Math.max(0,section.offsetHeight-innerHeight)*progress;
+  if(lenis)lenis.scrollTo(top,{duration:Math.min(2,Math.max(.65,Math.abs(top-scrollY)/5500)),lerp:0});
+  else window.scrollTo({top,behavior:reduced?'instant':'smooth'});
+  history.replaceState(null,'',link.hash);
+}));
 const bookingSelect=$('#bookingCat');bookingSelect.innerHTML='<option value="">还没有决定</option>'+cats.map(c=>`<option value="${c.name}">${c.name}</option>`).join('');
-function openBooking(){lastFocus=document.activeElement;bookingSelect.value=detail.classList.contains('active')?cats[activeCat].name:'';bookingBackdrop.hidden=false;requestAnimationFrame(()=>{bookingBackdrop.classList.add('active');booking.classList.add('active')});booking.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';setTimeout(()=>$('#bookingClose').focus(),150)}
-function closeBooking(){booking.classList.remove('active');bookingBackdrop.classList.remove('active');booking.setAttribute('aria-hidden','true');setTimeout(()=>{bookingBackdrop.hidden=true;if(!detail.classList.contains('active'))document.body.style.overflow=''},400);lastFocus?.focus?.()}
+function openBooking(){clearTimeout(bookingCloseTimer);bookingReturnFocus=document.activeElement;bookingSelect.value=detail.classList.contains('active')?cats[activeCat].name:'';bookingBackdrop.hidden=false;requestAnimationFrame(()=>{bookingBackdrop.classList.add('active');booking.classList.add('active')});booking.setAttribute('aria-hidden','false');lockPageScroll();setTimeout(()=>$('#bookingClose').focus({preventScroll:true}),150)}
+function closeBooking(){booking.classList.remove('active');bookingBackdrop.classList.remove('active');booking.setAttribute('aria-hidden','true');bookingCloseTimer=setTimeout(()=>{bookingBackdrop.hidden=true;unlockPageScroll()},400);bookingReturnFocus?.focus?.({preventScroll:true})}
 $$('[data-open-booking]').forEach(button=>button.addEventListener('click',openBooking));$('#bookingClose').addEventListener('click',closeBooking);bookingBackdrop.addEventListener('click',closeBooking);
 $('#bookingForm').addEventListener('submit',e=>{e.preventDefault();const data=new FormData(e.currentTarget);$('#bookingConfirmation').textContent=`预览：${data.get('name')}想预约${data.get('cat')||'猫咪'}。演示页面未发送信息，请等待正式预约方式上线。`});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(booking.classList.contains('active'))closeBooking();else if(detail.classList.contains('active'))closeDetail()}});

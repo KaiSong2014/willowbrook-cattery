@@ -16,6 +16,7 @@ files = [
     "assets/garden.webp",
     "assets/video/hero-poster.webp",
     "assets/video/hero-idle-loop.mp4",
+    "assets/video/hero-end-loop.mp4",
 ]
 for folder in ("assets/cats", "assets/js", "assets/frames"):
     files.extend(str(path.relative_to(root)) for path in (root / folder).iterdir() if path.is_file())
