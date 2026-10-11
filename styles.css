@@ -87,7 +87,7 @@ main{position:relative;z-index:1}
 @media(max-width:760px) and (max-height:600px){.film-hanging-note{right:4vw}.hanging-thread{height:70px}.hanging-words{font-size:10px}}
 @media(prefers-reduced-motion:reduce){.film-idle{display:none!important}.portal-iris,.portal-shutters,.film-hanging-note{display:none!important}.film,.featured{height:100vh}.featured,.story{margin-top:0}.story{opacity:1!important;transform:none!important;pointer-events:auto!important}}
 
-/* A captured video frame covers the decoder handoff until the requested image is ready. */
+/* The handoff canvas remains available for media recovery; normal blends use live video. */
 .film-handoff{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:2;opacity:0;pointer-events:none;transform-origin:44% 49%;will-change:opacity,transform}
 .film-end{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;opacity:0;pointer-events:none;transform-origin:44% 49%;will-change:opacity,transform}
 .film-shade{z-index:3}.film-copy,.film-script,.film-hanging-note,.scroll-cue,.film-bottom,.film-progress{z-index:4}
@@ -204,7 +204,7 @@ main{position:relative;z-index:1}
 
 /* Desktop scenes share scroll space without adding a second pin or transform scrub. */
 @media(min-width:761px) and (prefers-reduced-motion:no-preference){
-  .film{height:460vh}
+  .film{height:580vh}
   .featured{height:300vh}
   .film-sticky{opacity:var(--hero-scene-opacity,1)}
   .featured-sticky{background-color:var(--cats-scene-color,transparent)}
@@ -235,21 +235,23 @@ main{position:relative;z-index:1}
 /* First second: room, cat, then the invitation. The veil does not delay media loading. */
 .film-opening{display:none;position:absolute;inset:0;z-index:3;pointer-events:none}
 @media(min-width:761px) and (prefers-reduced-motion:no-preference){
-  .film-sticky{background:#040604 url('assets/video/hero-poster.webp') 44% 49%/cover no-repeat}
-  .hero-intro .film-opening{display:block}
-  .hero-intro .film-opening:before,.hero-intro .film-opening:after{content:"";position:absolute;inset:0;pointer-events:none}
-  .hero-intro .film-opening:before{background:#040604;animation:openingRoom .52s both}
-  .hero-intro .film-opening:after{background:radial-gradient(ellipse 31% 46% at 46% 48%,#040604 18%,#040604ed 62%,transparent 100%);animation:openingCat .76s both}
-  .hero-intro #filmFirst>*{animation:openingLine .30s both}
-  .hero-intro #filmFirst>:nth-child(1){animation-delay:.46s}
-  .hero-intro #filmFirst>:nth-child(2){animation-delay:.50s}
-  .hero-intro #filmFirst>:nth-child(3){animation-delay:.57s}
-  .hero-intro #filmFirst>:nth-child(4){animation-delay:.63s}
-  .hero-intro #filmFirst>:nth-child(5){animation-delay:.69s}
-  .hero-intro .film-script,.hero-intro .film-bottom{animation:openingFade .32s .70s both}
-  .hero-intro .film-hanging-note{animation:openingFade .32s .70s both,hangingSway 5s ease-in-out infinite alternate}
-  .hero-intro .scroll-cue{animation:openingCue .30s .72s both}
-  .hero-intro .site-header{animation:openingHeader .36s .61s both}
+  .film-sticky{background:#040604}
+  .hero-intro .film-opening{display:block;background:#040604}
+  .hero-intro:not(.hero-video-ready) .film-copy-first,.hero-intro:not(.hero-video-ready) .film-script,.hero-intro:not(.hero-video-ready) .film-hanging-note,.hero-intro:not(.hero-video-ready) .film-bottom,.hero-intro:not(.hero-video-ready) .scroll-cue{visibility:hidden}
+  .hero-intro.hero-video-ready .film-opening{background:transparent}
+  .hero-intro.hero-video-ready .film-opening:before,.hero-intro.hero-video-ready .film-opening:after{content:"";position:absolute;inset:0;pointer-events:none}
+  .hero-intro.hero-video-ready .film-opening:before{background:#040604;animation:openingRoom .52s both}
+  .hero-intro.hero-video-ready .film-opening:after{background:radial-gradient(ellipse 31% 46% at 46% 48%,#040604 18%,#040604ed 62%,transparent 100%);animation:openingCat .76s both}
+  .hero-intro.hero-video-ready #filmFirst>*{animation:openingLine .30s both}
+  .hero-intro.hero-video-ready #filmFirst>:nth-child(1){animation-delay:.46s}
+  .hero-intro.hero-video-ready #filmFirst>:nth-child(2){animation-delay:.50s}
+  .hero-intro.hero-video-ready #filmFirst>:nth-child(3){animation-delay:.57s}
+  .hero-intro.hero-video-ready #filmFirst>:nth-child(4){animation-delay:.63s}
+  .hero-intro.hero-video-ready #filmFirst>:nth-child(5){animation-delay:.69s}
+  .hero-intro.hero-video-ready .film-script,.hero-intro.hero-video-ready .film-bottom{animation:openingFade .32s .70s both}
+  .hero-intro.hero-video-ready .film-hanging-note{animation:openingFade .32s .70s both,hangingSway 5s ease-in-out infinite alternate}
+  .hero-intro.hero-video-ready .scroll-cue{animation:openingCue .30s .72s both}
+  .hero-intro.hero-video-ready .site-header{animation:openingHeader .36s .61s both}
   .scroll-cue:before{content:"";position:absolute;top:-18px;left:50%;width:76px;height:76px;margin-left:-38px;border-radius:50%;background:radial-gradient(circle,#f4da9c46 0%,#f4da9c1a 38%,transparent 72%);pointer-events:none;animation:cueGlow 3s ease-in-out infinite}
   .scroll-cue:after{content:"";position:absolute;top:calc(100% + 7px);left:50%;width:1px;height:23px;background:linear-gradient(#f5e8c9,transparent);pointer-events:none;animation:cueLine 2.8s ease-in-out infinite}
   .scroll-cue .mouse-icon{animation:cueFloat 2.8s ease-in-out infinite}

@@ -3,13 +3,15 @@
   const clamp = (value, min = 0, max = 1) => Math.max(min, Math.min(max, value));
   const FRAME_COUNT = 180;
   const START = .015;
-  const END = .72;
+  const END = .80;
   const BLEND_MS = 1000;
   const CACHE_LIMIT = 18;
+  // Give the ball play and the doorway their own scroll beats.
+  const BEATS = [[0, 0], [.18, 55], [.45, 90], [.68, 135], [.95, 170], [1, FRAME_COUNT - 1]];
 
   class HeroMedia {
-    constructor({ canvas, handoff, video, endVideo, reduced = false }) {
-      Object.assign(this, { canvas, handoff, video, endVideo, reduced });
+    constructor({ canvas, handoff, video, endVideo, reduced = false, onIdleReady }) {
+      Object.assign(this, { canvas, handoff, video, endVideo, reduced, onIdleReady });
       this.context = canvas.getContext('2d', { alpha: false });
       this.handoffContext = handoff.getContext('2d', { alpha: false });
       this.cache = new Map();
@@ -31,11 +33,10 @@
       this.generation = 0;
       this.disposed = false;
       this.unlisten = [];
-      this.poster = new Image();
       handoff.classList.remove('is-fading');
-      [handoff, canvas, video, endVideo].forEach((element, index) => {
+      [handoff, video, canvas, endVideo].forEach((element, index) => {
         if (!element) return;
-        element.style.zIndex = String(index < 2 ? index : 2);
+        element.style.zIndex = String(index);
         element.style.transition = 'none';
       });
       handoff.style.opacity = '0';
@@ -47,14 +48,23 @@
         return;
       }
 
-      this.poster.decoding = 'async';
-      this.poster.src = video.poster || 'assets/video/hero-poster.webp';
-      this.poster.decode().then(() => {
-        if (this.disposed || this.shown >= 0) return;
-        this.context.drawImage(this.poster, 0, 0, canvas.width, canvas.height);
-        this.hasCanvas = true;
-        if (this.idleFailed) this._fadeTo([1, 0, 0]);
-      }).catch(() => {});
+      const markIdleReady = () => {
+        if (this.disposed || this.idleReady) return;
+        this.idleReady = true;
+        this._applyWeights();
+        this.onIdleReady?.();
+        if (this.mode === 'idle') this._request(19, true);
+      };
+      if ('requestVideoFrameCallback' in video) {
+        video.requestVideoFrameCallback(markIdleReady);
+      } else {
+        this._listen(video, 'playing', () => {
+          if (video.readyState >= 2) requestAnimationFrame(() => requestAnimationFrame(markIdleReady));
+        });
+        if (!video.paused && video.readyState >= 2) {
+          requestAnimationFrame(() => requestAnimationFrame(markIdleReady));
+        }
+      }
       this._listen(video, 'error', () => {
         this.idleFailed = true;
         if (this.hasCanvas && this.mode === 'idle') this._fadeTo([1, 0, 0]);
@@ -94,7 +104,6 @@
         });
         this.observer.observe(canvas.closest('section') || canvas);
       }
-      this._request(19, true);
       this._syncPlayback();
     }
 
@@ -123,11 +132,11 @@
           this.endReady = false;
           this._fadeTo(this.idleFailed ? [1, 0, 0] : [0, 1, 0]);
         }
-        this._request(19, true);
+        if (this.idleReady || this.idleFailed) this._request(19, true);
       } else {
         if (this.mode === 'idle' && progress > START) this._leaveIntro();
         if (this.mode !== 'idle') {
-          if (this.mode === 'end' && progress < .70) {
+          if (this.mode === 'end' && progress < END - .02) {
             this.generation++;
             this.endStarting = false;
             this.endReady = false;
@@ -135,8 +144,17 @@
             this._fadeTo([1, 0, 0]);
           }
           const position = clamp((progress - START) / (END - START));
-          this._request(this.mode === 'end' ? FRAME_COUNT - 1
-            : this.startFrame + position * (FRAME_COUNT - 1 - this.startFrame));
+          let frame = FRAME_COUNT - 1;
+          for (let beat = 1; beat < BEATS.length; beat++) {
+            if (position > BEATS[beat][0]) continue;
+            const [fromProgress, fromFrame] = BEATS[beat - 1];
+            const [toProgress, toFrame] = BEATS[beat];
+            const firstFrame = beat === 1 ? this.startFrame : fromFrame;
+            frame = firstFrame + (toFrame - firstFrame)
+              * (position - fromProgress) / (toProgress - fromProgress);
+            break;
+          }
+          this._request(this.mode === 'end' ? FRAME_COUNT - 1 : frame);
           if (progress >= END && this.mode !== 'end') {
             this.mode = 'end';
             this._ensureEndSource();
@@ -147,7 +165,7 @@
       // A small bounded head start warms the end decoder before the endpoint.
       if (progress > .45 && progress < .94) this._ensureEndSource();
       // A restored scroll position may have decoded the end video while offscreen.
-      if (this.mode === 'end' && progress >= .70 && progress < .94) this._tryEnd();
+      if (this.mode === 'end' && progress >= END - .02 && progress < .94) this._tryEnd();
       this._syncPlayback();
       this._status();
     }
@@ -159,16 +177,15 @@
       const time = this.video.currentTime || 0;
       // The opening asset plays its first source frames forward, then backward.
       this.startFrame = clamp(Math.round(Math.min(time, Math.max(0, duration - time)) * 12), 0, 19);
-      this._captureMatte();
-      this.video.pause();
+      // Keep the living loop running until a matching decoded canvas frame is visible.
     }
 
     _request(index, warming = false) {
       this.target = clamp(Math.round(index), 0, FRAME_COUNT - 1);
-      // Start the endpoint request in the very first concurrency batch. A cold
-      // anchor jump can stop scene loading before a later queue entry is reached.
-      const next = warming ? [this.target, FRAME_COUNT - 1] : [this.target];
-      const ahead = warming ? 2 : 9;
+      // Warm the next few action frames only after the loop is visibly playing.
+      // Keep the endpoint in the queue for direct anchor jumps.
+      const next = warming ? [this.target, this.target + 1, this.target + 2, this.target + 3, FRAME_COUNT - 1] : [this.target];
+      const ahead = 9;
       for (let step = 1; step <= ahead; step++) next.push(this.target + step * this.direction);
       for (let step = 1; step <= 3; step++) next.push(this.target - step * this.direction);
       if (this.progress > .60) next.push(FRAME_COUNT - 1);
@@ -307,7 +324,6 @@
       if (!this.matteReady) {
         if (this.hasCanvas) this.matteReady = draw(this.canvas);
         else if (this.video.readyState >= 2) this.matteReady = draw(this.video);
-        else if (this.poster.naturalWidth) this.matteReady = draw(this.poster);
       }
       if (this.hasCanvas && this.weights[0] > 0) draw(this.canvas, this.weights[0]);
       if (this.video.readyState >= 2 && this.weights[1] > 0) draw(this.video, this.weights[1]);
@@ -320,7 +336,6 @@
       if (this.disposed) return;
       if (this.blend?.target.every((value, i) => value === target[i])) return;
       if (!this.blend && target.every((value, i) => value === this.weights[i])) return;
-      this._captureMatte();
       this.blend = { from: this.weights.slice(), target, start: performance.now() };
       this._scheduleBlend();
       this._status();
@@ -348,18 +363,23 @@
     }
 
     _applyWeights() {
-      [this.canvas, this.video, this.endVideo].forEach((element, index) => {
-        if (element) element.style.opacity = String(this.weights[index]);
-      });
+      // Each outgoing layer stays opaque behind the incoming one. Two half-opacity
+      // layers would expose the scene background at the midpoint of a crossfade.
+      this.video.style.opacity = this.idleReady && !this.idleFailed ? '1' : '0';
+      this.canvas.style.opacity = String(this.mode === 'end' || this.weights[2] > 0
+        ? 1 : this.weights[0]);
+      if (this.endVideo) this.endVideo.style.opacity = String(this.weights[2]);
     }
 
     _syncPlayback() {
       const active = !this.disposed && !this.reduced && !document.hidden && this.visible && this.progress < .94;
-      if (active && this.mode === 'idle' && !this.idleFailed) {
+      if (active && (this.mode === 'idle' || this.mode === 'sequence-pending'
+        || this.weights[1] > .001) && !this.idleFailed) {
         if (this.video.paused) this.video.play().catch(() => {});
       } else this.video.pause();
       if (!this.endVideo) return;
-      if (active && this.mode === 'end' && (this.endReady || this.endStarting)) {
+      if (active && (this.mode === 'end' || this.weights[2] > .001)
+        && (this.endReady || this.endStarting)) {
         if (this.endVideo.paused) this.endVideo.play().catch(() => {});
       } else this.endVideo.pause();
     }
