@@ -22,7 +22,7 @@
     <nav class="main-nav" aria-label="页面导航">
       <a href="#home">首页</a><a href="#featured">明星片</a><a href="#diary">猫咪展览</a><a href="#visit">到访地图</a><a href="#shopMenu">菜单</a>
     </nav>
-    <button class="pill pill-outline header-cta" type="button" data-open-booking>预约探访 <span aria-hidden="true">↗</span></button>
+    <button class="pill pill-outline header-cta" type="button" data-open-booking>查看预约状态 <span aria-hidden="true">↗</span></button>
     <button class="menu-toggle" id="menuToggle" type="button" aria-label="打开菜单" aria-expanded="false"><span></span><span></span></button>
   </header>
 
@@ -88,40 +88,43 @@
       <div class="visit-atmosphere" aria-hidden="true"></div>
       <div class="map-grid-window" id="mapGridWindow" aria-hidden="true"><div class="map-grid" id="mapGrid"></div></div>
       <div class="visit-container" id="visitArrival" inert>
-        <div class="visit-intro"><span class="eyebrow">VISIT OUR CATTERY · 04</span><h2 id="visitTitle">来猫舍见面吧</h2><p>地图展示北京朝阳区示意位置。正式地址确定后，会在这里更新门店坐标。</p></div>
+        <div class="visit-intro"><span class="eyebrow">VISIT OUR CATTERY · 04</span><h2 id="visitTitle">来猫舍见面吧</h2><p data-site="visitNote">门店资料待确认，在线预约未开放。</p></div>
         <div class="visit-layout">
           <div class="visit-card"><div class="visit-photo"><img src="assets/garden.webp" alt="猫舍庭院风格概念图" loading="lazy"><span>温柔的相遇<br>从这里开始 ♡</span></div>
-            <dl class="visit-facts"><div><dt>到访地址</dt><dd>正式地址待确认</dd></div><div><dt>开放时间</dt><dd>正式营业时间待确认</dd></div><div><dt>联系信息</dt><dd>正式联系方式待补充</dd></div><div><dt>到访提示</dt><dd>预约方式待正式公布</dd></div></dl>
-            <button class="pill pill-solid visit-book" type="button" data-open-booking>预约探访 <span aria-hidden="true">↗</span></button>
+            <dl class="visit-facts" data-site="facts"></dl>
+            <button class="pill pill-solid visit-book" type="button" data-open-booking>查看预约状态 <span aria-hidden="true">↗</span></button>
           </div>
-          <div class="map-shell" id="mapShell"><iframe title="北京朝阳区示意地图，可拖动查看" src="https://www.openstreetmap.org/export/embed.html?bbox=116.40%2C39.89%2C116.49%2C39.96&amp;layer=mapnik&amp;marker=39.925%2C116.445" loading="eager" referrerpolicy="no-referrer-when-downgrade"></iframe><div class="map-fallback" id="mapFallback"><div class="map-roads" aria-hidden="true"></div><div class="map-pin">⌖</div><div class="map-label"><strong>北京 · 朝阳区</strong><span>示意位置，非真实门店地址</span></div></div><button class="map-interact" id="mapInteract" type="button" aria-pressed="false">点击操作地图</button><span class="map-credit">© OPENSTREETMAP CONTRIBUTORS · 示意位置</span></div>
+          <div class="map-shell" id="mapShell"><iframe title="到访地图" hidden loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe><div class="map-fallback" id="mapFallback"><div class="map-roads" aria-hidden="true"></div><div class="map-pin">⌖</div><div class="map-label"><strong data-site="mapLabel">门店位置待确认</strong><span data-site="mapNote">暂无正式坐标</span></div></div><button class="map-interact" id="mapInteract" type="button" aria-pressed="false">点击操作地图</button><span class="map-credit">© OPENSTREETMAP CONTRIBUTORS</span></div>
         </div>
       </div>
       </div>
     </section>
     <section class="shop-menu" id="shopMenu" aria-labelledby="shopMenuTitle">
       <div class="shop-menu-inner">
-        <div class="shop-menu-heading"><span class="eyebrow">THE LITTLE SHOP · 05</span><h2 id="shopMenuTitle">猫舍里的<br><em>一份小菜单</em></h2><p>停下脚步，和小猫一起享受一段慢下来的时光。</p><small>以下品项与价格为页面设计示例，营业前请替换为正式菜单。</small></div>
-        <div class="menu-board"><div class="menu-board-top"><span>WILLOWBROOK · SAMPLE MENU</span><span>手写给每一场相遇 ♡</span></div><div class="menu-columns"><div><h3>饮品 <small>DRINKS</small></h3><div class="menu-item"><span><strong>花园拿铁</strong><small>Garden Latte</small></span><b>¥ 32</b></div><div class="menu-item"><span><strong>蜂蜜柚子茶</strong><small>Honey Citrus Tea</small></span><b>¥ 28</b></div><div class="menu-item"><span><strong>热可可</strong><small>Warm Cocoa</small></span><b>¥ 30</b></div></div><div><h3>甜点 <small>SWEETS</small></h3><div class="menu-item"><span><strong>猫爪曲奇</strong><small>Paw Cookies</small></span><b>¥ 22</b></div><div class="menu-item"><span><strong>莓果奶油蛋糕</strong><small>Berry Cream Cake</small></span><b>¥ 38</b></div><div class="menu-item"><span><strong>午后司康</strong><small>Afternoon Scone</small></span><b>¥ 26</b></div></div></div><div class="menu-board-bottom">菜单示例 · 具体品项、价格与过敏原信息待正式确认</div></div>
+        <div class="shop-menu-heading"><span class="eyebrow">THE LITTLE SHOP · 05</span><h2 id="shopMenuTitle">猫舍里的<br><em>一份小菜单</em></h2><p>停下脚步，和小猫一起享受一段慢下来的时光。</p><small data-site="menuNote">菜单待确认</small></div>
+        <div class="menu-board"><div class="menu-board-top"><span><span data-site="menuLabel">WILLOWBROOK</span></span><span>手写给每一场相遇 ♡</span></div><div class="menu-columns" id="menuColumns"></div><div class="menu-board-bottom" data-site="menuNote">菜单待确认</div></div>
       </div>
     </section>
-    <section class="hours" id="hours" aria-labelledby="hoursTitle"><div class="hours-inner"><div class="hours-intro"><span class="eyebrow light">PLAN YOUR VISIT · 06</span><h2 id="hoursTitle">留一点时间，<br>给一场温柔相遇。</h2><p>到访前请先预约。正式营业时间、地址与联系渠道确定后，将在这里同步更新。</p><button class="pill pill-outline" type="button" data-open-booking>预约探访 <span aria-hidden="true">↗</span></button></div><div class="hours-card"><span class="hours-card-mark">✿</span><h3>到访信息</h3><dl><div><dt>营业时间</dt><dd>待正式确认</dd></div><div><dt>接待方式</dt><dd>预约制 · 演示信息</dd></div><div><dt>到访地址</dt><dd>待正式确认</dd></div><div><dt>联系渠道</dt><dd>待正式补充</dd></div></dl><p>健康与购买保障内容请以猫舍正式公示文件为准。</p></div></div></section>
+    <section class="hours" id="hours" aria-labelledby="hoursTitle"><div class="hours-inner"><div class="hours-intro"><span class="eyebrow light">PLAN YOUR VISIT · 06</span><h2 id="hoursTitle">留一点时间，<br>给一场温柔相遇。</h2><p data-site="visitNote">门店资料待确认，在线预约未开放。</p><button class="pill pill-outline" type="button" data-open-booking>查看预约状态 <span aria-hidden="true">↗</span></button></div><div class="hours-card"><span class="hours-card-mark">✿</span><h3>到访信息</h3><dl data-site="facts"></dl><p>健康与购买保障内容请以猫舍正式公示文件为准。</p></div></div></section>
   </main>
 
   <div class="portal-iris" id="portalIris" aria-hidden="true"></div>
   <div class="portal-shutters" id="portalShutters" aria-hidden="true"><div class="portal-lid portal-lid-top"></div><div class="portal-lid portal-lid-bottom"></div></div>
 
-  <footer class="site-footer"><span>Willowbrook Cattery</span><span>A KINDER, BRIGHTER WORLD</span><span>© 2026 · 视觉概念演示</span></footer>
+  <footer class="site-footer"><span>Willowbrook Cattery</span><span>A KINDER, BRIGHTER WORLD</span><span><span data-site="modeLabel">门店资料待确认</span></span></footer>
 
   <div class="detail-backdrop" id="detailBackdrop" hidden></div>
-  <aside class="detail-panel" id="detailPanel" role="dialog" aria-modal="true" aria-labelledby="detailName" aria-hidden="true"><button class="icon-close" id="detailClose" type="button" aria-label="关闭猫咪详情">×</button><div class="detail-scroll" id="detailScroll"><div class="detail-hero"><img id="detailImage" alt=""><span class="detail-handwriting" id="detailHandwriting">Pure Joy ♡</span></div><div class="detail-paper"><span class="eyebrow">A LITTLE STORY ABOUT ME · 示例档案</span><div class="detail-name-row"><h2 id="detailName">露娜</h2><span id="detailGender">♀</span></div><p class="detail-trait" id="detailTrait"></p><div class="detail-grid"><div><h3>小档案</h3><dl id="detailFacts"></dl></div><div><h3>关于我 ♡</h3><p id="detailBio"></p></div></div><div class="detail-stamp"><span class="paw-symbol">🐾</span><span>Small Paws<br>Big Happiness</span></div><button class="pill pill-solid" type="button" data-open-booking>预约与 TA 见面 <span aria-hidden="true">↗</span></button></div></div></aside>
+  <aside class="detail-panel" id="detailPanel" role="dialog" aria-modal="true" aria-labelledby="detailName" aria-hidden="true"><button class="icon-close" id="detailClose" type="button" aria-label="关闭猫咪详情">×</button><div class="detail-scroll" id="detailScroll"><div class="detail-hero"><img id="detailImage" alt=""><span class="detail-handwriting" id="detailHandwriting">Pure Joy ♡</span></div><div class="detail-paper"><span class="eyebrow">A LITTLE STORY ABOUT ME · 示例档案</span><div class="detail-name-row"><h2 id="detailName">露娜</h2><span id="detailGender">♀</span></div><p class="detail-trait" id="detailTrait"></p><div class="detail-grid"><div><h3>小档案</h3><dl id="detailFacts"></dl></div><div><h3>关于我 ♡</h3><p id="detailBio"></p></div></div><div class="detail-stamp"><span class="paw-symbol">🐾</span><span>Small Paws<br>Big Happiness</span></div><button class="pill pill-solid" type="button" data-open-booking>查看预约状态 <span aria-hidden="true">↗</span></button></div></div></aside>
 
-  <div class="booking-backdrop" id="bookingBackdrop" hidden></div><section class="booking-modal" id="bookingModal" role="dialog" aria-modal="true" aria-labelledby="bookingTitle" aria-hidden="true"><button class="icon-close" id="bookingClose" type="button" aria-label="关闭预约窗口">×</button><span class="eyebrow">COME SAY HELLO</span><h2 id="bookingTitle">预约一场温柔的相遇</h2><p>这是设计演示页，预约表单尚未接入正式提交。填写内容仅在本页预览，不会发送。</p><form id="bookingForm"><label>你的称呼<input name="name" autocomplete="name" required placeholder="如何称呼你"></label><label>联系方式<input name="contact" required placeholder="手机号或微信"></label><label>想见的猫咪<select name="cat" id="bookingCat"></select></label><button class="pill pill-solid" type="submit">预览预约信息 <span aria-hidden="true">↗</span></button></form><p class="booking-confirmation" id="bookingConfirmation" role="status"></p></section>
+  <div class="booking-backdrop" id="bookingBackdrop" hidden></div><section class="booking-modal" id="bookingModal" role="dialog" aria-modal="true" aria-labelledby="bookingTitle" aria-hidden="true"><button class="icon-close" id="bookingClose" type="button" aria-label="关闭预约窗口">×</button><span class="eyebrow">COME SAY HELLO</span><h2 id="bookingTitle">在线预约未开放</h2><p id="bookingNotice">当前不会发送预约申请。</p><form id="bookingForm" hidden><label>你的称呼<input name="name" autocomplete="name" required placeholder="如何称呼你"></label><label>联系方式<input name="contact" required placeholder="手机号或微信"></label><label>想见的猫咪<select name="cat" id="bookingCat"></select></label><button class="pill pill-solid" type="submit">预览预约信息 <span aria-hidden="true">↗</span></button></form><p class="booking-confirmation" id="bookingConfirmation" role="status"></p></section>
 
+  <noscript><p>页面交互需启用 JavaScript。门店资料待确认，此页面不接收预约。</p></noscript>
   <script src="assets/js/gsap.min.js" defer></script>
   <script src="assets/js/ScrollTrigger.min.js" defer></script>
   <script src="assets/js/lenis.min.js" defer></script>
   <script src="assets/js/hero-media.js?v=20261011-hero3" defer></script>
+  <script src="site-config.js" defer></script>
+  <script src="site-data.js" defer></script>
   <script src="script.js?v=20261011-hero3" defer></script>
 </body>
 </html>

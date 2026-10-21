@@ -3,7 +3,14 @@ on:
   push:
     branches: [main]
     paths:
-      - site.zip
+      - index.html
+      - styles.css
+      - script.js
+      - site-config.js
+      - site-data.js
+      - assets/**
+      - images/**
+      - scripts/build_pages.py
       - .github/workflows/deploy.yml
   workflow_dispatch:
 permissions:
@@ -19,15 +26,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Unpack static site
-        run: |
-          mkdir -p _site
-          unzip -q site.zip -d _site
-          test -f _site/index.html
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: Build static site from source
+        run: python scripts/build_pages.py
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4
         with:
-          path: _site
+          path: docs
   deploy:
     needs: build
     runs-on: ubuntu-latest

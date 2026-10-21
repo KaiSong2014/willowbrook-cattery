@@ -12,6 +12,8 @@ files = [
     "index.html",
     "styles.css",
     "script.js",
+    "site-config.js",
+    "site-data.js",
     "images/1.png",
     "assets/garden.webp",
     "assets/video/hero-poster.webp",
