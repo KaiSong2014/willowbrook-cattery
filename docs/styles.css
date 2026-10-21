@@ -273,3 +273,6 @@ main{position:relative;z-index:1}
   .detail-backdrop{background:#07120840;backdrop-filter:none}
 }
 @media(min-width:1051px){.detail-panel{width:min(540px,38vw)}}
+
+/* Configuration can hide unavailable controls without changing scene layout. */
+#bookingForm[hidden],#mapInteract[hidden],#mapShell iframe[hidden]{display:none!important}
